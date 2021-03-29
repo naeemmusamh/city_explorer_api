@@ -14,11 +14,12 @@ const app = express();
 app.use(cors());
 
 //Creates an env application.
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 9901;
 
 //A constructor function will ensure that each object is created according to the
 //same format when your server receives the external data.
 function Locations(data) {
+    this.searchQuery = select;
     this.display_name = data.display_name;
     this.lat = data.lat;
     this.lon = data.lon;
@@ -27,16 +28,21 @@ function Locations(data) {
 //A constructor function will ensure that each object is created according to the
 //same format when the server receives data.
 function Weathers(data) {
-    this.city_name = data.weather.description;
-    this.valid_date = data.valid_date;
+    this.city_name = data.forecast;
+    this.valid_date = data.time;
 }
 
 //Create a route with a method and a path.
 //invoke a function to convert the search query to a latitude and longitude.
 app.get('/data/location', function(request, response) {
     const searchQuery = request.query;
+    const select = searchQuery.city;
+    if (!select) {
+        response.status(500).send('sorry, no city was found');
+        // throw new Error('i dont find any city');
+    }
     const locationRow = require('data/location.json');
-    const locationData = new Locations(locationRow[0]);
+    const locationData = new Locations(locationRow[0], select);
     return response.send(locationData);
 });
 
@@ -47,7 +53,8 @@ app.get('/data/weather', function(request, response) {
     const weatherRow = require('data/weather.json');
     const result = [];
     weatherRow.nearby_weather.forEach(element => {
-        result.push(new Weathers(element));
+        const weatherData = new Weathers(element.weather.description, element.valid_date);
+        result.push(weatherData);
     });
     return response.send(result);
 });
