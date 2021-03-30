@@ -52,7 +52,6 @@ function Park(data) {
 //invoke a function to convert the search query to a latitude and longitude.
 app.get('/location', function(request, response) {
     const searchQuery = request.query.city;
-    // const select = searchQuery.city;
     const url = 'https://eu1.locationiq.com/v1/search.php?';
     const cityQuery = {
         key: LOCATION_API_KEY,
@@ -104,7 +103,6 @@ app.get('/weather', function(request, response) {
 app.get('/park', function(request, response) {
     // let city = request.query.city;
     const url = `https://developer.nps.gov/api/v1/parks?${request.query.latitude,request.query.longitude}&api_key=${WEATHER_API_KEY}`;
-    console.log(url);
     const cityQuery = {
         lat: request.query.latitude,
         lon: request.query.longitude,
@@ -126,4 +124,4 @@ app.use('*', (request, response) => {
     response.send('all good nothing to see here!');
 });
 
-app.listen(PORT, () => console.log(`Listening to Port ${PORT}`));
+app.listen(PORT, () => { console.log(`Listening to Port ${PORT}`) });
