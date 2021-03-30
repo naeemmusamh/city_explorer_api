@@ -25,7 +25,7 @@ app.use(cors());
 //A constructor function will ensure that each object is created according to the
 //same format when your server receives the external data.
 function Locations(data, search_query) {
-    this.search_query = search_query.select;
+    this.search_query = search_query;
     this.formatted_query = data.display_name;
     this.latitude = data.lat;
     this.longitude = data.lon;
@@ -59,13 +59,15 @@ app.get('/location', function(request, response) {
         city: searchQuery,
         format: 'json',
     };
-    console.log(cityQuery);
+    // console.log(cityQuery);
     if (!searchQuery) {
         response.status(404).send('sorry, no search query was found');
-        // throw new Error('i dont find any city');
     }
+
     superagent.get(url).query(cityQuery).then(responseData => {
-        const locationData = new Locations(searchQuery, responseData.body[0]);
+        // console.log(responseData.body);
+        const locationData = new Locations(responseData.body[0], searchQuery);
+        // console.log(locationData);
         response.status(200).send(locationData);
     }).catch((error) => {
         console.log('error', error);
@@ -87,7 +89,7 @@ app.get('/weather', function(request, response) {
     // const weatherRow = require('./data/weather.json');
     superagent.get(url).query(cityQuery).then(requestData => {
         const weatherData = requestData.body.data.map(weather => {
-            return new Weathers(weather);
+            new Weathers(weather);
         });
         response.send(weatherData);
     }).catch((error) => {
@@ -101,18 +103,19 @@ app.get('/weather', function(request, response) {
 //response which contains the necessary information for correct client rendering.
 app.get('/park', function(request, response) {
     // let city = request.query.city;
-    const url = `https://developer.nps.gov/api/v1/parks?parkCode=acad&api_key=aQ1YikZr7NEbcaUONtyaKp8ieuVSO0sxD6StWbOi`;
+    const url = `https://developer.nps.gov/api/v1/parks?${request.query.latitude,request.query.longitude}&api_key=${WEATHER_API_KEY}`;
+    console.log(url);
     const cityQuery = {
         lat: request.query.latitude,
         lon: request.query.longitude,
-        key: WEATHER_API_KEY,
+        key: PARK_API_KEY,
     };
     // const weatherRow = require('./data/weather.json');
     superagent.get(url).query(cityQuery).then(requestData => {
-        const weatherData = requestData.body.data.map(weather => {
-            return new Weathers(weather);
+        const parkData = requestData.body.data.map(park => {
+            new Park(park);
         });
-        response.send(weatherData);
+        response.send(parkData);
     }).catch((error) => {
         console.log('error', error);
         response.staus(500).send('sorry, something wrong');
