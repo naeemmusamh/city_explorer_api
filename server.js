@@ -37,6 +37,9 @@ function Weathers(data) {
     this.valid_date = data.time;
 }
 
+//Creates an env application.
+const PORT = process.env.PORT || 9901;
+
 //Create a route with a method and a path.
 //invoke a function to convert the search query to a latitude and longitude.
 app.get('/location', function(request, response) {
@@ -60,6 +63,14 @@ app.get('/location', function(request, response) {
         console.log('ereor', error);
         response.staus(500).send('sorry, something wrong');
     });
+    const searchQuery = request.query;
+    let select = searchQuery.city;
+    if (!select) {
+        response.status(500).send('sorry, no city was found');
+    }
+    const locationRow = require('./data/location.json');
+    const locationData = new Locations(locationRow[0], select)
+    response.send(locationData);
 });
 
 //Create a route with a method and a path.
@@ -70,13 +81,34 @@ app.get('/weather', function(request, response) {
     const url = `https://api.weatherbit.io/v2.0/history/daily?key${WEATHER_API_KEY}&city=${city}`;
     // const weatherRow = require('./data/weather.json');
     superagent.get(url).then(element => {
+app.get('/weather', function handelWeather(request, response) {
+    const weatherRow = require('./data/weather.json');
+    const result = [];
+    weatherRow.nearby_weather.forEach(element => {
         const weatherData = new Weathers(element.weather.description, element.valid_date);
         response.status(200).send(weatherData);
     }).catch((error) => {
         console.log('ereor', error);
         response.staus(500).send('sorry, something wrong');
     });
+    response.send(result);
 });
+
+//A constructor function will ensure that each object is created according to the
+//same format when your server receives the external data.
+function Locations(data, select) {
+    this.search_query = select;
+    this.formatted_query = data.display_name;
+    this.latitude = data.lat;
+    this.longitude = data.lon;
+}
+
+//A constructor function will ensure that each object is created according to the
+//same format when the server receives data.
+function Weathers(data) {
+    this.city_name = data.forecast;
+    this.valid_date = data.time;
+}
 
 app.use('*', (request, response) => {
     response.send('all good nothing to see here!');
