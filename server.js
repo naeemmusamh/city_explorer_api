@@ -16,6 +16,7 @@ const superagent = require('superagent');
 const PORT = process.env.PORT;
 const LOCATION_API_KEY = process.env.LOCATION_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const PARK_API_KEY = process.env.PARK_API_KEY;
 
 //the app setup
 const app = express();
@@ -37,12 +38,22 @@ function Weathers(data) {
     this.valid_date = data.time;
 }
 
+//A constructor function will ensure that each object is created according to the
+//same format when your server receives the external data.
+function Park(data) {
+    this.name = data.name;
+    this.description = data.description;
+    this.address = `${data.addresses[0].line1} ${data.addresses[0].city} ${data.addresses[0].statecode} ${data.addresses[0].postalcode}`;
+    this.fees = data.fess[0] || '0.00';
+    this.longitude = data.url;
+}
+
 //Create a route with a method and a path.
 //invoke a function to convert the search query to a latitude and longitude.
 app.get('/location', function(request, response) {
     const searchQuery = request.query.city;
     // const select = searchQuery.city;
-    const url = 'https://eu1.locationiq.com/v1/search.php';
+    const url = 'https://eu1.locationiq.com/v1/search.php?';
     const cityQuery = {
         key: LOCATION_API_KEY,
         city: searchQuery,
@@ -57,7 +68,7 @@ app.get('/location', function(request, response) {
         const locationData = new Locations(searchQuery, responseData.body[0]);
         response.status(200).send(locationData);
     }).catch((error) => {
-        console.log('ereor', error);
+        console.log('error', error);
         response.staus(500).send('sorry, something wrong');
     });
 });
@@ -66,14 +77,44 @@ app.get('/location', function(request, response) {
 //weather object of the result, return an array of objects for each day of the
 //response which contains the necessary information for correct client rendering.
 app.get('/weather', function(request, response) {
-    let city;
-    const url = `https://api.weatherbit.io/v2.0/history/daily?key${WEATHER_API_KEY}&city=${city}`;
+    // let city = request.query.city;
+    const url = `https://api.weatherbit.io/v2.0/history/daily`;
+    const cityQuery = {
+        lat: request.query.latitude,
+        lon: request.query.longitude,
+        key: WEATHER_API_KEY,
+    };
     // const weatherRow = require('./data/weather.json');
-    superagent.get(url).then(element => {
-        const weatherData = new Weathers(element.weather.description, element.valid_date);
-        response.status(200).send(weatherData);
+    superagent.get(url).query(cityQuery).then(requestData => {
+        const weatherData = requestData.body.data.map(weather => {
+            return new Weathers(weather);
+        });
+        response.send(weatherData);
     }).catch((error) => {
-        console.log('ereor', error);
+        console.log('error', error);
+        response.staus(500).send('sorry, something wrong');
+    });
+});
+
+//Create a route with a method and a path.
+//weather object of the result, return an array of objects for each day of the
+//response which contains the necessary information for correct client rendering.
+app.get('/park', function(request, response) {
+    // let city = request.query.city;
+    const url = `https://developer.nps.gov/api/v1/parks?parkCode=acad&api_key=aQ1YikZr7NEbcaUONtyaKp8ieuVSO0sxD6StWbOi`;
+    const cityQuery = {
+        lat: request.query.latitude,
+        lon: request.query.longitude,
+        key: WEATHER_API_KEY,
+    };
+    // const weatherRow = require('./data/weather.json');
+    superagent.get(url).query(cityQuery).then(requestData => {
+        const weatherData = requestData.body.data.map(weather => {
+            return new Weathers(weather);
+        });
+        response.send(weatherData);
+    }).catch((error) => {
+        console.log('error', error);
         response.staus(500).send('sorry, something wrong');
     });
 });
