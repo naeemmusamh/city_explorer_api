@@ -9,6 +9,15 @@ const express = require('express');
 //Creates an cors application.
 const cors = require('cors');
 
+//create an superagent application
+const superagent = require('superagent');
+
+//Creates an env application.
+const PORT = process.env.PORT;
+const LOCATION_API_KEY = process.env.LOCATION_API_KEY;
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const PARK_API_KEY = process.env.PARK_API_KEY;
+
 //the app setup
 const app = express();
 app.use(cors());
@@ -38,16 +47,22 @@ function Parks(data) {
     this.fee = data.fees[0] || '1.00';
     this.longitude = data.url;
 }
-//Creates an env application.
-const PORT = process.env.PORT || 9901;
 
 //Create a route with a method and a path.
 //invoke a function to convert the search query to a latitude and longitude.
 app.get('/location', function(request, response) {
     const searchQuery = request.query.city;
+    const url = 'https://eu1.locationiq.com/v1/search.php?';
+    const cityQuery = {
+        key: LOCATION_API_KEY,
+        city: searchQuery,
+        format: 'json',
+    };
+    // console.log(cityQuery);
     if (!searchQuery) {
-        response.status(500).send('sorry, no city was found');
+        response.status(404).send('sorry, no search query was found');
     }
+
     superagent.get(url).query(cityQuery).then(responseData => {
         // console.log(responseData.body);
         const locationData = new Locations(responseData.body[0], searchQuery);
@@ -80,7 +95,6 @@ app.get('/weather', function(request, response) {
         console.log('error', error);
         response.status(500).send('sorry, something wrong');
     });
-    response.send(result);
 });
 
 //Create a route with a method and a path.
@@ -104,4 +118,4 @@ app.use('*', (request, response) => {
     response.send('all good nothing to see here!');
 });
 
-app.listen(PORT, () => console.log(`Listening to Port ${PORT}`));
+app.listen(PORT, () => { console.log(`Listening to Port ${PORT}`) });
