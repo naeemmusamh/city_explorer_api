@@ -3,21 +3,48 @@
 # Project Name
 
 **Author**: Naeem Musamh
-**Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
+**Version**: 1.5.0
 
 ## Overview
-<!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
+it helps the user to get the weather to location specific
 
 ## Getting Started
 <!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
 
 ## Architecture
-<!-- Provide a detailed description of the application design. What technologies (languages, libraries, etc) you're using, and any other relevant design information. -->
+
+[City Explorer Application](https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/)
+
+[Node JS Docs](https://nodejs.org/en/)
+
+[Express JS Docs](http://expressjs.com/en/4x/api.html)
+
+[dotenv Docs](https://www.npmjs.com/package/dotenv)
+
+[location.json](https://codefellows.github.io/code-301-guide/curriculum/class-06/lab/starter-code/data/location.json)
+
+[weather.json](https://codefellows.github.io/code-301-guide/curriculum/class-06/lab/starter-code/data/weather.json)
+
+[Superagent Docs](https://visionmedia.github.io/superagent/)
+
+[Location IQ Geocoding API](https://locationiq.com/docs#forward-geocoding)
+
+[Weather Bit API Docs](https://www.weatherbit.io/)
+
+[SQL Statement](https://www.w3schools.com/sql/trysql.asp?filename=trysql_select_all)
+
+[postgresql](https://www.postgresql.org/docs/)
+
+[Heroku](https://devcenter.heroku.com/articles/heroku-postgresql)
+
+[Structured Query Language Cheat Sheet](https://codefellows.github.io/code-301-guide/curriculum/class-08/cheatsheets/sql)
+
+[PostgreSQL Shell Cheat Sheet](https://codefellows.github.io/code-301-guide/curriculum/class-08/cheatsheets/postgres-shell)
+
 
 ## Change Log
-Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
-
-01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
+29-03-2021 11:30pm - The application now has a functional express server, with a GET route for the location resource.
+30-03-2021 12:00pm - Add API KEY
 
 ## Credits and Collaborations
 # The link for the website help me with this work
@@ -27,20 +54,45 @@ Use this area to document the iterative changes made to your application as each
 in the server.js
 
 [npm docs](https://docs.npmjs.com/)
+
 [dotenv](https://www.npmjs.com/package/dotenv)
+
 [express](http://expressjs.com/en/4x/api.html)
 
 
 
-#The Estimate Of Time Needed
+# The Estimate Of Time Needed
 
 
-Number and name of feature: clss-06 Node, npm and Express
+Number and name of feature: lab 06 - Node, npm and Express
 
-Estimate of time needed to complete: 3:30 hour
+Estimate of time needed to complete: 3:00 hours
 
 Start time: 3:30pm
 
-Finish time: 6:30pm
+Finish time: 8:30pm
 
-Actual time needed to complete: 2 hour
+
+
+Number and name of feature: lab 07 - APIs
+
+Estimate of time needed to complete: 3:00 hours
+
+Start time: 3:30pm
+
+Finish time: 9:30pm
+
+i get some help to complete this lab by teaching assistant Batool AL-Ali
+
+
+Number and name of feature: Lab 08 - Persistence with a SQL Database
+
+Estimate of time needed to complete: 3:00 hours
+
+Start time: 1:30pm
+
+Finish time: 9:00pm
+
+i get some help to complete this lab by teaching assistant Roqaia Salahi
+
+and i get some help from the video lab code review
