@@ -34,8 +34,8 @@ app.get('/', (request, response) => {
 
 //A constructor function will ensure that each object is created according to the
 //same format when your server receives the external data.
-function Locations(data, search_query) {
-    this.search_query = search_query;
+function Locations(data, searchQuery) {
+    this.search_query = searchQuery;
     this.formatted_query = data.display_name;
     this.latitude = data.lat;
     this.longitude = data.lon;
@@ -44,8 +44,8 @@ function Locations(data, search_query) {
 //A constructor function will ensure that each object is created according to the
 //same format when the server receives data.
 function Weathers(data) {
-    this.city_name = data.forecast;
-    this.valid_date = data.time;
+    this.forecast = data.weather.description;
+    this.time = data.valid_date;
 }
 
 //A constructor function will ensure that each object is created according to the

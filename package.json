@@ -19,6 +19,7 @@
   "homepage": "https://github.com/naeemmusamh/city_explorer_api#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "cros": "^1.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "install": "^0.13.0",
