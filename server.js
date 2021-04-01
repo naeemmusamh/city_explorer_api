@@ -14,18 +14,18 @@ const app = express();
 app.use(cors());
 
 //Creates an env application.
-const PORT = process.env.PORT || 9901;
+const PORT = process.env.PORT;
 
 //Create a route with a method and a path.
 //invoke a function to convert the search query to a latitude and longitude.
 app.get('/location', function(request, response) {
-    const searchQuery = request.query;
-    let select = searchQuery.city;
-    if (!select) {
+    const searchQuery = request.query.city;
+    if (!searchQuery) {
         response.status(500).send('sorry, no city was found');
     }
     const locationRow = require('./data/location.json');
-    const locationData = new Locations(locationRow[0], select)
+    const locationData = new Locations(locationRow[0], searchQuery);
+    console.log(locationData);
     response.send(locationData);
 });
 
@@ -34,18 +34,20 @@ app.get('/location', function(request, response) {
 //response which contains the necessary information for correct client rendering.
 app.get('/weather', function handelWeather(request, response) {
     const weatherRow = require('./data/weather.json');
-    const result = [];
-    weatherRow.nearby_weather.forEach(element => {
-        const weatherData = new Weathers(element.weather.description, element.valid_date);
+    let result = [];
+    const weatherRowData = weatherRow.data;
+    weatherRowData.forEach(element => {
+        const weatherData = new Weathers(element);
         result.push(weatherData);
+        console.log(weatherData);
     });
     response.send(result);
 });
 
 //A constructor function will ensure that each object is created according to the
 //same format when your server receives the external data.
-function Locations(data, select) {
-    this.search_query = select;
+function Locations(data, searchQuery) {
+    this.search_query = searchQuery;
     this.formatted_query = data.display_name;
     this.latitude = data.lat;
     this.longitude = data.lon;
@@ -54,8 +56,8 @@ function Locations(data, select) {
 //A constructor function will ensure that each object is created according to the
 //same format when the server receives data.
 function Weathers(data) {
-    this.city_name = data.forecast;
-    this.valid_date = data.time;
+    this.forecast = data.weather.description;
+    this.time = data.valid_date;
 }
 
 app.use('*', (request, response) => {
