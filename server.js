@@ -169,9 +169,9 @@ app.get('/park', function(request, response) {
 
 //Create a route with a method and a path.
 app.get('/movie', function(request, response) {
-    const url = `https://api.themoviedb.org/3/movie/550?api_key=${MOVIE_API_KEY}&query=${request.query.city}`;
+    const url = `https://api.themoviedb.org/3/movie/550?api_key=${MOVIE_API_KEY}&query=${request.query.search_query}`;
     superagent.get(url).then(requestData => {
-        const movieData = requestData.body.results.map(movieElement => {
+        const movieData = requestData.body.results(movieElement => {
             console.log(movieData);
             return new Movie(movieElement);
         });
