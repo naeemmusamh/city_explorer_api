@@ -13,7 +13,7 @@ const cors = require('cors');
 const superagent = require('superagent');
 
 //Creates an env application.
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 9091;
 const LOCATION_API_KEY = process.env.LOCATION_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const PARK_API_KEY = process.env.PARK_API_KEY;
@@ -21,6 +21,13 @@ const PARK_API_KEY = process.env.PARK_API_KEY;
 //the app setup
 const app = express();
 app.use(cors());
+
+//the app setup to database
+const client = new pg.Client(DATABASE_URL);
+
+app.get('/', (request, response) => {
+    response.status(200).send('every thing good!!');
+});
 
 //A constructor function will ensure that each object is created according to the
 //same format when your server receives the external data.
@@ -62,17 +69,42 @@ app.get('/location', function(request, response) {
     if (!searchQuery) {
         response.status(404).send('sorry, no search query was found');
     }
-
-    superagent.get(url).query(cityQuery).then(responseData => {
-        // console.log(responseData.body);
-        const locationData = new Locations(responseData.body[0], searchQuery);
-        console.log(locationData);
-        response.status(200).send(locationData);
+    getLocationsDataBase(searchQuery).then(responseData => {
+        response.status(200).json(responseData);
     }).catch((error) => {
         console.log('error', error);
         response.status(500).send('sorry, something wrong');
     });
 });
+
+function getLocationsDataBase(city) {
+    console.log('from the new function');
+    const safeValues = [city];
+    const sqlQuery = `SELECT * FROM locations WHERE search_query=$1`;
+    return client.query(sqlQuery, safeValues).then(result => {
+        console.log('sending form the data base');
+        if (result.rows.length !== 0) {
+            return result.rows[0];
+        } else {
+            const url = 'https://eu1.locationiq.com/v1/search.php';
+            const cityQuery = {
+                key: LOCATION_API_KEY,
+                city: city,
+                format: 'json',
+            };
+            // console.log(responseData.body);
+            return superagent.get(url).query(cityQuery).then(responseData => {
+                const locationData = new Locations(responseData.body[0], city);
+                const safeValues = [city, Locations.formatted_query, Locations.latitude, Locations.longitude];
+                const sqlQuery = `INSERT INTO locations(search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4)`;
+                client.query(sqlQuery, safeValues);
+                return locationData;
+            }).catch((error) => {
+                console.log(error);
+            });
+        }
+    });
+}
 
 //Create a route with a method and a path.
 //weather object of the result, return an array of objects for each day of the
@@ -82,8 +114,8 @@ app.get('/weather', function(request, response) {
     const cityQuery = {
         lat: request.query.latitude,
         lon: request.query.longitude,
-        key: WEATHER_API_KEY
-    }
+        key: WEATHER_API_KEY,
+    };
     superagent.get(url).query(cityQuery).then(requestData => {
         const weatherData = requestData.body.data.map(weather => {
             console.log(weatherData);
