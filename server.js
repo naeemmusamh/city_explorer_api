@@ -9,8 +9,6 @@ const express = require('express');
 //Creates an cors application.
 const cors = require('cors');
 
-const pg = require('pg');
-
 //create an superagent application
 const superagent = require('superagent');
 
@@ -19,7 +17,6 @@ const PORT = process.env.PORT || 9091;
 const LOCATION_API_KEY = process.env.LOCATION_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const PARK_API_KEY = process.env.PARK_API_KEY;
-const DATABASE_URL = process.env.DATABASE_URL;
 
 //the app setup
 const app = express();
@@ -34,8 +31,8 @@ app.get('/', (request, response) => {
 
 //A constructor function will ensure that each object is created according to the
 //same format when your server receives the external data.
-function Locations(data, search_query) {
-    this.search_query = search_query;
+function Locations(data, searchQuery) {
+    this.search_query = searchQuery;
     this.formatted_query = data.display_name;
     this.latitude = data.lat;
     this.longitude = data.lon;
@@ -54,15 +51,21 @@ function Parks(data) {
     this.name = data.name;
     this.description = data.description;
     this.address = `${data.addresses[0].line1} ${data.addresses[0].city} ${data.addresses[0].statecode} ${data.addresses[0].postalcode}`;
-    this.fees = data.fess[0] || '0.00';
+    this.fee = data.fees[0] || '1.00';
     this.longitude = data.url;
 }
 
 //Create a route with a method and a path.
 //invoke a function to convert the search query to a latitude and longitude.
-// Create a function to check the database for the location information.
 app.get('/location', function(request, response) {
     const searchQuery = request.query.city;
+    const url = 'https://eu1.locationiq.com/v1/search.php?';
+    const cityQuery = {
+        key: LOCATION_API_KEY,
+        city: searchQuery,
+        format: 'json',
+    };
+    // console.log(cityQuery);
     if (!searchQuery) {
         response.status(404).send('sorry, no search query was found');
     }
@@ -128,7 +131,7 @@ app.get('/weather', function(request, response) {
 
 //Create a route with a method and a path.
 //weather object of the result, return an array of objects for each day of the
-//response which contains the necessary information for correct client rendering.
+// response which contains the necessary information for correct client rendering.
 app.get('/park', function(request, response) {
     const url = `https://developer.nps.gov/api/v1/parks?q=${request.query.search_query}&api_key=${PARK_API_KEY}&limit=10`;
     superagent.get(url).then(requestData => {
@@ -147,9 +150,4 @@ app.use('*', (request, response) => {
     response.send('all good nothing to see here!');
 });
 
-client.connect().then(() => {
-    app.listen(PORT, () => {
-        console.log('connect to database:', client.connectionParameters.database);
-        console.log(`Listening to Port ${PORT}`);
-    });
-});
+app.listen(PORT, () => { console.log(`Listening to Port ${PORT}`) });
